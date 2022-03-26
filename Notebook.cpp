@@ -13,6 +13,7 @@ const int STAND=5;
 const char ASSIGN='_';
 const int MIN=0;
 const char DEL='~';
+const char SP=' ';
 const int Invalid=33;
 const int Invalid2=127;
 const int divisor=10;
@@ -25,10 +26,20 @@ bool checkValid(int page, int row, int column,const string &text,int length)
     }
     for(unsigned i=0;i<text.length();i++)
     {
-        if(text.at(i)<Invalid || text.at(i)>=Invalid2)
+        if(i==0)
+        {
+            if(text.at(i)<Invalid || text.at(i)>=Invalid2)
+            {
+                ans=false;
+                break;
+            }
+        }
+        else{
+        if((text.at(i)<Invalid || text.at(i)>=Invalid2) and text.at(i)!=SP)
         {
             ans=false;
             break;
+        }
         }
     }
     return ans;
@@ -80,12 +91,6 @@ namespace ariel{
         {
             notebook[page].assign((unsigned)row+text.length(),vector<char>(MAX,ASSIGN));
         }
-        else{
-            if((unsigned)row+text.length()>=MAX) // Resizing the notebook, if we above the max rows.
-            {
-                notebook[page].resize((unsigned)row+text.length());
-            }
-        }
         /**
          * @brief 
          * checking if we can write in this place.
@@ -94,12 +99,20 @@ namespace ariel{
         {
             if(dir==Direction::Horizontal)
             {
+                if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
+                {
+                    notebook[page][(unsigned)row].resize((unsigned)column+i+1);
+                }
                 if(notebook[page][(unsigned)row][(unsigned)column+i]!=ASSIGN)
                 {
                     throw invalid_argument{"can't write in this place!"};
                 }
             }
             else{
+                if(notebook[page].size()<=(unsigned)row+i)
+                {
+                    notebook[page].resize((unsigned)row+i+1);
+                }
                 if(notebook[page][(unsigned)row+i][(unsigned)column]!=ASSIGN)
                 {
                     throw invalid_argument{"can't write in this place!"};
@@ -113,10 +126,18 @@ namespace ariel{
         for(unsigned i=0;i<text.length();i++){
             if(dir==Direction::Horizontal)
             {
+                if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
+                {
+                    notebook[page][(unsigned)row].resize((unsigned)column+i+1);
+                }
                 notebook[page][(unsigned)row][(unsigned)column+i]=text[i];
             }
             else
             {
+                if(notebook[page].size()<=(unsigned)row+i)
+                {
+                    notebook[page].resize((unsigned)row+i+1);
+                }
                 notebook[page][(unsigned)row+i][(unsigned)column]=text[i];
             }
         }
@@ -147,20 +168,22 @@ namespace ariel{
         {
             notebook[page].assign((unsigned)row+(unsigned)length,vector<char>(MAX,ASSIGN));
         }
-        else{
-            if((unsigned)row+(unsigned)length>=MAX) // Resizing the notebook, if we above the max rows.
-            {
-                notebook[page].resize((unsigned)row+(unsigned)length);
-            }
-        }
         string total;
         for(unsigned i=0;i<(unsigned)length;i++)
         {
             if(dir==Direction::Horizontal)
             {
+                if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
+                {
+                    notebook[page][(unsigned)row].resize((unsigned)column+i+1);
+                }
                 total+=notebook[page][(unsigned)row][(unsigned)column+i];
             }
             else{
+                if(notebook[page].size()<=(unsigned)row+i)
+                {
+                    notebook[page].resize((unsigned)row+i+1);
+                }
                 total+=notebook[page][(unsigned)row+i][(unsigned)column];
             }
         }
@@ -191,19 +214,22 @@ namespace ariel{
         {
             notebook[page].assign((unsigned)row+(unsigned)length,vector<char>(MAX,ASSIGN));
         }
-        else{
-            if((unsigned)row+(unsigned)length>=MAX) // Resizing the notebook, if we above the max rows.
-            {
-                notebook[page].resize((unsigned)row+(unsigned)length);
-            }
-        }
+
         for(unsigned i=0;i<(unsigned)length;i++)
         {
             if(dir==Direction::Horizontal)
             {
+                 if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
+                {
+                    notebook[page][(unsigned)row].resize((unsigned)column+i+1);
+                }
                 notebook[page][(unsigned)row][(unsigned)column+i]=DEL;
             }
             else{
+                if(notebook[page].size()<=(unsigned)row+i)
+                {
+                    notebook[page].resize((unsigned)row+i+1);
+                }
                 notebook[page][(unsigned)row+i][(unsigned)column]=DEL;
             }
         }
