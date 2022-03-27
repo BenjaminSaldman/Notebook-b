@@ -28,14 +28,14 @@ bool checkValid(int page, int row, int column,const string &text,int length)
     {
         if(i==0)
         {
-            if(text.at(i)<Invalid || text.at(i)>=Invalid2)
+            if(text.at(i)<Invalid || text.at(i)>=Invalid2 || text.at(i)==DEL)
             {
                 ans=false;
                 break;
             }
         }
         else{
-        if((text.at(i)<Invalid || text.at(i)>=Invalid2) and text.at(i)!=SP)
+        if((text.at(i)<Invalid || text.at(i)>=Invalid2 || text.at(i)==DEL) and text.at(i)!=SP)
         {
             ans=false;
             break;
@@ -65,11 +65,12 @@ namespace ariel{
      * writing to the notebook.
      */
     void Notebook::write(int page,int row,int column, Direction dir,const string &text){
-        
+         
         if(!checkValid(page,row,column,text,1)) // check the validity of the input.
         {
             throw invalid_argument{"Invalid input"};
         }
+       
         unsigned long k=text.length()-1;
         if(dir==Direction::Horizontal)
         {
@@ -99,11 +100,15 @@ namespace ariel{
         {
             if(dir==Direction::Horizontal)
             {
+                if(notebook[page].size()<=(unsigned)row)
+                {
+                    notebook[page].resize((unsigned)row+1);
+                }
                 if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
                 {
                     notebook[page][(unsigned)row].resize((unsigned)column+i+1);
                 }
-                if(notebook[page][(unsigned)row][(unsigned)column+i]!=ASSIGN)
+                 if(notebook[page][(unsigned)row][(unsigned)column+i]!=ASSIGN &&notebook[page][(unsigned)row][(unsigned)column+i]!=MIN )
                 {
                     throw invalid_argument{"can't write in this place!"};
                 }
@@ -113,7 +118,19 @@ namespace ariel{
                 {
                     notebook[page].resize((unsigned)row+i+1);
                 }
-                if(notebook[page][(unsigned)row+i][(unsigned)column]!=ASSIGN)
+                if( notebook[page][(unsigned)row+i].size()<=(unsigned)column)
+                {
+                    notebook[page][(unsigned)row+i].resize((unsigned)column+i+1);
+                }
+                if(notebook[page].size()==text.length())
+                {
+                    notebook[page].resize(text.length()+1);
+                }
+                if(notebook[page].size()<=(unsigned)row+i)
+                {
+                    notebook[page].resize((unsigned)row+i+1);
+                }
+                if(notebook[page][(unsigned)row+i][(unsigned)column]!=ASSIGN && notebook[page][(unsigned)row+i][(unsigned)column]!=MIN)
                 {
                     throw invalid_argument{"can't write in this place!"};
                 }
@@ -126,11 +143,16 @@ namespace ariel{
         for(unsigned i=0;i<text.length();i++){
             if(dir==Direction::Horizontal)
             {
+                if(notebook[page].size()<=(unsigned)row)
+                {
+                    notebook[page].resize((unsigned)row+1);
+                }
                 if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
                 {
                     notebook[page][(unsigned)row].resize((unsigned)column+i+1);
                 }
                 notebook[page][(unsigned)row][(unsigned)column+i]=text[i];
+                
             }
             else
             {
@@ -138,7 +160,22 @@ namespace ariel{
                 {
                     notebook[page].resize((unsigned)row+i+1);
                 }
+                if( notebook[page][(unsigned)row+i].size()<=(unsigned)column)
+                {
+                    notebook[page][(unsigned)row+i].resize((unsigned)column+i+1);
+                }
+                if(notebook[page].size()==text.length())
+                {
+                    notebook[page].resize(text.length()+1);
+                }
+                if(notebook[page].size()<=(unsigned)row+i)
+                {
+                    notebook[page].resize((unsigned)row+i+1);
+                }
+                
                 notebook[page][(unsigned)row+i][(unsigned)column]=text[i];
+                
+
             }
         }
 
@@ -173,10 +210,15 @@ namespace ariel{
         {
             if(dir==Direction::Horizontal)
             {
+                if(notebook[page].size()<=(unsigned)row)
+                {
+                    notebook[page].resize((unsigned)row+1);
+                }
                 if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
                 {
                     notebook[page][(unsigned)row].resize((unsigned)column+i+1);
                 }
+
                 total+=notebook[page][(unsigned)row][(unsigned)column+i];
             }
             else{
@@ -184,7 +226,17 @@ namespace ariel{
                 {
                     notebook[page].resize((unsigned)row+i+1);
                 }
+                if( notebook[page][(unsigned)row+i].size()<=(unsigned)column)
+                {
+                    notebook[page][(unsigned)row+i].resize((unsigned)column+i+1);
+                }
+                if(notebook[page][(unsigned)row+i][(unsigned)column]==0)
+                {
+                    total+=ASSIGN;
+                }
+                else{
                 total+=notebook[page][(unsigned)row+i][(unsigned)column];
+                }
             }
         }
         return total;
@@ -219,17 +271,28 @@ namespace ariel{
         {
             if(dir==Direction::Horizontal)
             {
+                 if(notebook[page].size()<=(unsigned)row)
+                {
+                    notebook[page].resize((unsigned)row+1);
+                }
                  if(notebook[page][(unsigned)row].size()<=(unsigned)column+i)
                 {
                     notebook[page][(unsigned)row].resize((unsigned)column+i+1);
                 }
+                
                 notebook[page][(unsigned)row][(unsigned)column+i]=DEL;
+                
             }
             else{
                 if(notebook[page].size()<=(unsigned)row+i)
                 {
                     notebook[page].resize((unsigned)row+i+1);
                 }
+                 if( notebook[page][(unsigned)row+i].size()<=(unsigned)column)
+                {
+                    notebook[page][(unsigned)row+i].resize((unsigned)column+i+1);
+                }
+                
                 notebook[page][(unsigned)row+i][(unsigned)column]=DEL;
             }
         }
@@ -253,51 +316,8 @@ namespace ariel{
         {
             notebook[page].assign(MAX,vector<char>(MAX,ASSIGN));
         }
-        string printer;
-        if(!ans)
-        {
-            for(unsigned i=0;i<notebook[page].size()/divisor;i++)
-            {
-                for(unsigned j=0;j<notebook[page].size()/divisor;j++)
-                {
-                    printer+=to_string(i)+": "+notebook[page][i][j];
-                }
-                printer+='\n';
-            }
-            cout<<printer<<endl;
-            return;
-        }
-        unsigned int minRow=notebook[page].size();
-        unsigned int maxRow=0;
-        for(unsigned i=0;i<notebook[page].size();i++)
-            {
-                for(unsigned j=0;j<notebook[page][i].size();j++)
-                {
-                    if(notebook[page][i][j]!=ASSIGN)
-                    {
-                        if(i<minRow)
-                        {
-                            minRow=i;
-                        }
-                        if(i>maxRow)
-                        {
-                            maxRow=i;
-                        }
-                    }
-                }
-            }
-        string s;
-        for(unsigned i=0;i<=maxRow;i++)
-        {
-            s+=to_string(i)+": ";
-            //cout<<i<<": ";
-            for(unsigned j=0;j<MAX;j++)
-            {
-
-                cout<<notebook[page][i][j];
-            }
-            cout<<endl;
-        }
+      
+     
         
     }
 
